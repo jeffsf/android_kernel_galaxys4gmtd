@@ -685,6 +685,9 @@ static ssize_t show_UV_mV_table(struct cpufreq_policy *policy, char *buf) {
 
 static ssize_t store_UV_mV_table(struct cpufreq_policy *policy,
 					const char *buf, size_t count) {
+
+	printk(KERN_DEBUG "store_UV_mV_table received:|%s|", buf);
+
 	unsigned int ret = -EINVAL;
 
 	ret = sscanf(buf, "%d %d %d %d %d %d %d %d %d %d %d", 
@@ -714,6 +717,23 @@ static ssize_t show_frequency_voltage_table(struct cpufreq_policy *policy,
 	freq_uv_table[9][0], freq_uv_table[9][1], freq_uv_table[9][2],
 	freq_uv_table[10][0], freq_uv_table[10][1], freq_uv_table[10][2]);
 }
+
+/* AOKP ROM seems to want to write to frequency_voltage_table, not UV_mV_table */
+/* For now, confirm what it is writing to the ROM */
+
+#define AOKP_UV_HACK
+#ifdef AOKP_UV_HACK
+
+static ssize_t store_frequency_voltage_table(struct cpufreq_policy *policy,
+					     const char *buf, size_t count) {
+
+	printk(KERN_DEBUG "store_frequency_voltage_table received:|%s|", buf);
+
+	/* return store_UV_mV_table(policy, buf, count); */
+
+}
+
+#endif
 
 static ssize_t show_states_enabled_table(struct cpufreq_policy *policy, char *buf) {
 	return sprintf(buf, "%d %d %d %d %d %d %d %d %d %d %d", 
