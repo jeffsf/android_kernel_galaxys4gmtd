@@ -373,8 +373,6 @@ void update_freq_uv_table(void)
 	for (i = 0; i < FREQ_SIZE; i++) {
 		freq_uv_table[i][1] = dvs_conf[i].arm_volt / 1000;
 		freq_uv_table[i][2] = ( dvs_conf[i].arm_volt / 1000 ) - exp_UV_mV[i];
-		printk(KERN_DEBUG "update_freq_uv_table: Row %d: %d %d %d", 
-		       i, freq_uv_table[i][0], freq_uv_table[i][1], freq_uv_table[i][2]);
 	}
 }
 EXPORT_SYMBOL(update_freq_uv_table); // used by drivers/cpufreq/cpufreq.c
