@@ -541,6 +541,8 @@ static ssize_t touch_led_control(struct device *dev,
 	struct cypress_touchkey_devdata *devdata = dev_get_drvdata(dev);
 	int ret;
 
+	dump_stack();
+
 	if (devdata && !devdata->is_powering_on) {
 		if (strncmp(buf, "1", 1) == 0)
 			ret = i2c_touchkey_write(devdata, &devdata->backlight_on, 1);
