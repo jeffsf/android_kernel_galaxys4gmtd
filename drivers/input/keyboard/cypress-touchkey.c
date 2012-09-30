@@ -306,6 +306,7 @@ static void cypress_touchkey_early_resume(struct early_suspend *h)
 	devdata->pdata->touchkey_onoff(TOUCHKEY_ON);
 
 #if defined(CONFIG_S5PC110_VIBRANTPLUS_BOARD)
+	printk(KERN_DEBUG "%s() BACKLIGHT ON\n", __func__);
 	if (i2c_touchkey_write_byte(devdata, devdata->backlight_on)) {
 		devdata->is_dead = true;
 		devdata->pdata->touchkey_onoff(TOUCHKEY_OFF);
@@ -541,14 +542,16 @@ static ssize_t touch_led_control(struct device *dev,
 	struct cypress_touchkey_devdata *devdata = dev_get_drvdata(dev);
 	int ret;
 
-	dump_stack();
+	printk(KERN_DEBUG "%s() entry\n", __func__);
 
 	if (devdata && !devdata->is_powering_on) {
-		if (strncmp(buf, "1", 1) == 0)
-			ret = i2c_touchkey_write(devdata, &devdata->backlight_on, 1);
-		else
+		if (strncmp(buf, "1", 1) == 0) {
+			printk(KERN_DEBUG "%s() BACKLIGHT ON\n", __func__);
+		        ret = i2c_touchkey_write(devdata, &devdata->backlight_on, 1);
+		} else {
+			printk(KERN_DEBUG "%s() BACKLIGHT OFF\n", __func__);
 			ret = i2c_touchkey_write(devdata, &devdata->backlight_off, 1);
-
+		}
 		if (ret)
 			dev_err(dev, "%s: touchkey led i2c failed\n", __func__);
 		}
@@ -594,10 +597,12 @@ static DEVICE_ATTR(enable_disable, 0664, NULL,
 /* bln start */
 
 static void enable_touchkey_backlights(void){
+	printk(KERN_DEBUG "%s() BACKLIGHT ON\n", __func__);
 	i2c_touchkey_write_byte(bln_devdata, bln_devdata->backlight_on);
 }
 
 static void disable_touchkey_backlights(void){
+	printk(KERN_DEBUG "%s() BACKLIGHT OFF\n", __func__);
 	i2c_touchkey_write_byte(bln_devdata, bln_devdata->backlight_off);
 }
 
@@ -622,6 +627,7 @@ static void enable_led_notification(void){
 
 			/* write to i2cbus, enable backlights */
 			pr_info("%s: enable lights\n", __FUNCTION__); //remove me
+			printk(KERN_DEBUG "%s() calling enable_touchkey_backlights()\n",__func__);
 			enable_touchkey_backlights();
 
 			pr_info("%s: notification led enabled\n", __FUNCTION__);
@@ -639,6 +645,7 @@ static void disable_led_notification(void){
 
 	/* if touchkeys lights are not used for touchmode */
 	if (bln_devdata->is_powering_on){
+		printk(KERN_DEBUG "%s() calling disable_touchkey_backlights()\n",__func__);
 		disable_touchkey_backlights();
 	}
 
@@ -716,11 +723,13 @@ static ssize_t blink_control_write(struct device *dev, struct device_attribute *
 				pr_devel("%s: %u \n", __FUNCTION__, data);
 				if (data == 1){
 					bln_blink_enabled = true;
+					printk(KERN_DEBUG "%s() calling disable_touchkey_backlights()\n",__func__);
 					disable_touchkey_backlights();
 				}
 
 				if(data == 0){
 					bln_blink_enabled = false;
+					printk(KERN_DEBUG "%s() calling enable_touchkey_backlights()\n",__func__);
 					enable_touchkey_backlights();
 				}
 			}
