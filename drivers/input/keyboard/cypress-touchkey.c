@@ -47,6 +47,9 @@
 #define UPDOWN_EVENT_MASK	0x08
 #define ESD_STATE_MASK		0x10
 
+// Early-production SGS4G reports rev1 0xf, rev2 0x3
+// Apparently some use 0x10 and 0x20 for backlight control, that device responds to both
+
 #define BACKLIGHT_ON		0x1
 #define BACKLIGHT_OFF		0x2
 
@@ -61,12 +64,15 @@ int touchkey_ldo_on(bool on)
 		regulator = regulator_get(NULL, "touch");
 		if (IS_ERR(regulator))
 			return 0;
+		printk(KERN_DEBUG, "%s(): Powering up \"touch\" regulator", __func__);
 		regulator_enable(regulator);
 		regulator_put(regulator);
 	} else {
 		regulator = regulator_get(NULL, "touch");
+		printk(KERN_DEBUG, "%s(): regulator_get(NULL, \"touch\")", __func__);
 		if (IS_ERR(regulator))
 			return 0;
+		printk(KERN_DEBUG, "%s(): Powering off \"touch\" regulator", __func__);
 		if (regulator_is_enabled(regulator))
 			regulator_force_disable(regulator);
 		regulator_put(regulator);
