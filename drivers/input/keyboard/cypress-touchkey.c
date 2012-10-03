@@ -229,6 +229,19 @@ static irqreturn_t touchkey_interrupt_thread(int irq, void *touchkey_devdata)
 		input_sync(devdata->input_dev);
 		dev_dbg(&devdata->client->dev, "[release] cypress touch key : %d \n",
 			devdata->pdata->keycode[scancode]);
+
+		// jmk -- Hefe Kernel Of Darkeness -- force off the backlight
+		
+		ret = i2c_touchkey_write_byte(devdata, devdata->backlight_off);
+
+		if (ret) {
+			printk(KERN_WARNING "%s(): touchkey led i2c backlight_off write failed\n", __func__);
+		} else {
+			printk(KERN_DEBUG "%s() BACKLIGHT OFF on key-up\n", __func__);
+		}
+
+		// jmk -- Back to your normally scheduled programming
+
 	} else {
 		if (!touch_state_val) {
 			if (devdata->has_legacy_keycode) {
