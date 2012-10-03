@@ -268,20 +268,6 @@ static irqreturn_t touchkey_interrupt_thread(int irq, void *touchkey_devdata)
 			input_sync(devdata->input_dev);
 		}
 	}
-
-	// jmk -- Hefe Kernel Of Darkeness -- force off the backlight
-
-	ret = i2c_touchkey_write_byte(devdata, devdata->backlight_off);
-
-	if (ret) {
-		printk(KERN_WARNING "%s(): touchkey led i2c backlight_off write failed\n", __func__);
-	} else {
-		printk(KERN_DEBUG "%s() BACKLIGHT OFF\n", __func__);
-	}
-
-	// jmk -- Back to your normally scheduled programming
-
-
 err:
 	return IRQ_HANDLED;
 }
@@ -579,9 +565,8 @@ static ssize_t touch_led_control(struct device *dev,
 
 	if (devdata && !devdata->is_powering_on) {
 		if (strncmp(buf, "1", 1) == 0) {
-			printk(KERN_DEBUG "%s() BACKLIGHT ON -- IGNORED\n", __func__);
-		        // ret = i2c_touchkey_write(devdata, &devdata->backlight_on, 1);
-			ret = i2c_touchkey_write(devdata, &devdata->backlight_off, 1);
+			printk(KERN_DEBUG "%s() BACKLIGHT ON\n", __func__);
+		        ret = i2c_touchkey_write(devdata, &devdata->backlight_on, 1);
 		} else {
 			printk(KERN_DEBUG "%s() BACKLIGHT OFF\n", __func__);
 			ret = i2c_touchkey_write(devdata, &devdata->backlight_off, 1);
