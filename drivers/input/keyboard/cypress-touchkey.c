@@ -1,4 +1,5 @@
 /*
+ * Portions
  * Copyright 2006-2010, Cypress Semiconductor Corporation.
  * Copyright (C) 2010, Samsung Electronics Co. Ltd. All Rights Reserved.
  * Copyright (C) 2011, Michael Richter (alias neldar)
@@ -47,8 +48,11 @@
 #define UPDOWN_EVENT_MASK	0x08
 #define ESD_STATE_MASK		0x10
 
-// Early-production SGS4G reports rev1 0xf, rev2 0x3
-// Apparently some use 0x10 and 0x20 for backlight control, that device responds to both
+/*
+ * Early-production SGS4G reports rev1 0xf, rev2 0x3
+ * Apparently some use 0x10 and 0x20 for backlight control,
+ * that device responds to both
+ */
 
 #define BACKLIGHT_ON		0x1
 #define BACKLIGHT_OFF		0x2
@@ -256,7 +260,7 @@ static irqreturn_t touchkey_interrupt_thread(int irq, void *touchkey_devdata)
 		}
 	}
 
-	// jmk -- Hefe Kernel Of Darkeness -- force off the backlight
+	/* jmk -- Hefe Kernel Of Darkeness -- force off the backlight */
 
 	ret = i2c_touchkey_write_byte(devdata, devdata->backlight_off);
 
@@ -266,7 +270,7 @@ static irqreturn_t touchkey_interrupt_thread(int irq, void *touchkey_devdata)
 		printk(KERN_DEBUG "%s() BACKLIGHT OFF\n", __func__);
 	}
 
-	// jmk -- Back to your normally scheduled programming
+	/* jmk -- Back to your normally scheduled programming */
 
 
 err:
@@ -324,17 +328,20 @@ static void cypress_touchkey_early_resume(struct early_suspend *h)
         #endif
 
 	devdata->pdata->touchkey_onoff(TOUCHKEY_ON);
-
-/* #if defined(CONFIG_S5PC110_VIBRANTPLUS_BOARD) */
-/* 	printk(KERN_DEBUG "%s() BACKLIGHT ON\n", __func__); */
-/* 	if (i2c_touchkey_write_byte(devdata, devdata->backlight_on)) { */
-/* 		devdata->is_dead = true; */
-/* 		devdata->pdata->touchkey_onoff(TOUCHKEY_OFF); */
-/* 		dev_err(&devdata->client->dev, "%s: touch keypad not responding" */
-/* 				" to commands, disabling\n", __func__); */
-/* 		return; */
-/* 	} */
-/* #endif */
+/*
+ * jmk -- Hefe Kernel Of Darkness -- Don't turn on backlight here
+ *
+ * #if defined(CONFIG_S5PC110_VIBRANTPLUS_BOARD)
+ * 	printk(KERN_DEBUG "%s() BACKLIGHT ON\n", __func__);
+ * 	if (i2c_touchkey_write_byte(devdata, devdata->backlight_on)) {
+ * 		devdata->is_dead = true;
+ * 		devdata->pdata->touchkey_onoff(TOUCHKEY_OFF);
+ * 		dev_err(&devdata->client->dev, "%s: touch keypad not responding"
+ * 				" to commands, disabling\n", __func__);
+ * 		return;
+ * 	}
+ * #endif
+ */
 	devdata->is_dead = false;
 	enable_irq(devdata->client->irq);
 	devdata->is_powering_on = false;
@@ -567,7 +574,11 @@ static ssize_t touch_led_control(struct device *dev,
 	if (devdata && !devdata->is_powering_on) {
 		if (strncmp(buf, "1", 1) == 0) {
 			printk(KERN_DEBUG "%s() BACKLIGHT ON -- IGNORED\n", __func__);
-		        // ret = i2c_touchkey_write(devdata, &devdata->backlight_on, 1);
+		        /*
+			 * jmk -- Hefe Kernel of Darkness -- Don't turn on backlight
+			 *
+			 * ret = i2c_touchkey_write(devdata, &devdata->backlight_on, 1);
+			 */
 			ret = i2c_touchkey_write(devdata, &devdata->backlight_off, 1);
 		} else {
 			printk(KERN_DEBUG "%s() BACKLIGHT OFF\n", __func__);
